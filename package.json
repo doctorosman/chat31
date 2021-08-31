@@ -3,9 +3,11 @@
     "version": "0.0.1",
     "description": "Sohbet mekanı 31.",
     "main": "index.js",
+    "engines": {
+        "node": "14.17.5"
+    },
     "scripts": {
-        "start": "node index.js",
-        "build": "webpack"
+        "start": "node index.js"
     },
     "dependencies": {
         "express": "^4.17.1",
