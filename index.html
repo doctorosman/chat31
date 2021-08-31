@@ -89,8 +89,10 @@
             console.log(e);
             if (e.key == 'Enter' || e.type == 'click') {
                 if (input.value) {
-                    if (username.value.trim() != '') {
-                        socket.emit('chat message', input.value);
+                    if (username.value.trim() != '') {            
+                        const date = new Date();
+                        let time = date.getHours() + '.' + date.getMinutes();
+                        socket.emit('chat message', username.value, input.value, time);
                         input.value = '';   
                     }else {
                         alert('Kullanıcı adı girin.');
@@ -102,11 +104,9 @@
         input.addEventListener('keyup', enter);
         button.addEventListener('click', enter);
 
-        socket.on('chat message', function(msg) {
-            const date = new Date();
-            let time = date.getHours() + '.' + date.getMinutes();
+        socket.on('chat message', function(username, msg, time) {
             var item = document.createElement('li');
-            item.innerHTML = '<b>' + username.value + '</b>:&nbsp;' + msg.trim() + '<i>' + time + '</i>';
+            item.innerHTML = '<b>' + username + '</b>:&nbsp;' + msg.trim() + '<i>' + time + '</i>';
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
