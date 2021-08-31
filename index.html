@@ -60,6 +60,15 @@
             font-size: 1rem;
         }
 
+        #admin {
+            font-size: 26px;
+            background: rgb(24,9,121);
+            background: linear-gradient(90deg, rgba(24,9,121,1) 31%, rgba(0,212,255,1) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
         #input { padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
         #form > button { background: darkblue; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
@@ -83,15 +92,20 @@
         var input = document.getElementById('input');
         var button = document.getElementById('enter');
         var username = prompt('Kullanıcı adı:');
+        
+        if (username == 'admin') {
+            alert('bi sen zekisin yarram');
+        }
 
         const enter = (e) => {
             console.log(e);
             if (e.key == 'Enter' || e.type == 'click') {
                 if (input.value) {
-                    if (username != null && username.trim() != '') {            
+                    if (username != null && username.trim() != '' && username != 'admin') {            
                         const date = new Date();
                         let time = date.getHours() + '.' + date.getMinutes();
-                        socket.emit('chat message', username, input.value, time);
+                        
+                        socket.emit('chat message', username.trim(), input.value, time);
                         input.value = '';   
                     }else {
                         alert('Kullanıcı adı girmek için sayfayı yenileyin.');
@@ -105,7 +119,12 @@
 
         socket.on('chat message', function(username, msg, time) {
             var item = document.createElement('li');
-            item.innerHTML = '<b>' + username + '</b>:&nbsp;' + msg.trim() + '<i>' + time + '</i>';
+
+            if (username == 'admin') {
+                item.innerHTML = '<b id="admin">' + username + '</b>:&nbsp;' + msg.trim() + '<i>' + time + '</i>';
+            }else {
+                item.innerHTML = '<b>' + username + '</b>:&nbsp;' + msg.trim() + '<i>' + time + '</i>';
+            }
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
