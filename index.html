@@ -87,20 +87,13 @@
     >
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        function sound(src) {
-            this.sound = document.createElement("audio");
-            this.sound.src = src;
-            this.sound.setAttribute("preload", "auto");
-            this.sound.setAttribute("controls", "none");
-            this.sound.style.display = "none";
-            document.body.appendChild(this.sound);
-            this.play = function(){
-                this.sound.play();
-            }
-            this.stop = function(){
-                this.sound.pause();
-            }    
-        }
+        sound = document.createElement("audio");
+        sound.src = 'https://raw.githubusercontent.com/doctorosman/arbaold/master/audio/ebeninami.mp3';
+        sound.setAttribute("preload", "auto");
+        sound.setAttribute("controls", "none");
+        sound.style.display = "none";
+        document.body.appendChild(this.sound);
+
         var socket = io();
 
         var messages = document.getElementById('messages');
@@ -130,24 +123,24 @@
                                 socket.emit('sustur', susturulacak);
                             }else if (input.value.startsWith('/sil')){
                                 let n = (input.value.slice(5) == '') ? '1' : input.value.slice(5)
-                                document.querySelector('li:nth-last-child(' + n + ')').innerHTML = '<span id="bilgi">(bu mesaj silindi.)<span>'
+                                socket.emit('sil', n);
                             }else if (input.value == '/clear'){
-                                document.querySelectorAll('li').forEach((item) => {
-                                    item.remove();
-                                });
-                                var item = document.createElement('li');
-                                item.setAttribute('id', 'bilgi');
-                                item.innerHTML = 'Sohbet admin tarafından temizlendi.';
-                                messages.appendChild(item);
+                                socket.emit('clear');
                             }else if (input.value == '/fuck') {
+                                socket.emit('fuck');
+                            }else if (input.value == '/ebe') {
+                                socket.emit('ebe');
+                            }else if (input.value == '/help') {
                                 var item = document.createElement('li');
-                                                    
-                                item.innerHTML = '<b id="admin">admin</b>:&nbsp;' + '<img width="215" height="291" src="https://www.pngitem.com/pimgs/m/329-3299225_middle-finger-with-arm-png-transparent-png.png">';
+                                let help = '<b>/sustur [oyuncu]</b> - Oyuncuyu susturur.<br>' +
+                                    '<b>/sil [sondan önceki x. mesaj]</b>' + ' - Sondan önceki x. mesajı siler.<br>' +
+                                    '<b>/clear</b>' + ' - Tüm sohbeti temizler.<br>' +
+                                    '<b>/fuck</b>' + ' - Orta parmak yollar.<br>' +
+                                    '<b>/ebe</b>' + ' - :)';
+                                item.innerHTML = 'YARDIM<br>' + help + '<i>' + time + '</i>';
+
                                 messages.appendChild(item);
                                 window.scrollTo(0, document.body.scrollHeight);
-                            }else if (input.value == '/ebe') {
-                                let ebe = new sound('https://raw.githubusercontent.com/doctorosman/arbaold/master/audio/ebeninami.mp3');
-                                ebe.play();
                             }else {
                                 socket.emit('chat message', username.trim(), input.value, time);
                             }
@@ -201,6 +194,29 @@
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
+
+        socket.on('sil', (n) => {
+            document.querySelector('li:nth-last-child(' + n + ')').innerHTML = '<span id="bilgi">(bu mesaj silindi.)<span>';
+        });
+
+        socket.on('clear', () => {
+            document.querySelectorAll('li').forEach((item) => {
+                item.remove();
+            });
+            var item = document.createElement('li');
+            item.setAttribute('id', 'bilgi');
+            item.innerHTML = 'Sohbet admin tarafından temizlendi.';
+            messages.appendChild(item);
+        });
+
+        socket.on('fuck', () => {
+            var item = document.createElement('li');                     
+            item.innerHTML = '<b id="admin">admin</b>:&nbsp;' + '<img width="215" height="291" src="https://www.pngitem.com/pimgs/m/329-3299225_middle-finger-with-arm-png-transparent-png.png">';
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on('ebe', () => sound.play());
     </script>
 </body>
 </html>

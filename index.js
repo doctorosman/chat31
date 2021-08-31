@@ -19,6 +19,18 @@ io.on('connection', (socket) => {
     socket.on('gir', (username) => {
         io.emit('gir', username);
     });
+    socket.on('ebe', () => {
+        io.emit('ebe');
+    });
+    socket.on('sil', (n) => {
+        io.emit('sil', n);
+    });
+    socket.on('clear', () => {
+        io.emit('clear');
+    });
+    socket.on('fuck', () => {
+        io.emit('fuck');
+    });
 });
 
 server.listen(process.env.PORT || 3000, () => {
