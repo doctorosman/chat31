@@ -61,8 +61,7 @@
         }
 
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-        #input, #username { padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-        #username { flex: 0; }
+        #input { padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
         #form > button { background: darkblue; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
     </style>
 </head>
@@ -72,7 +71,7 @@
         <ul id="messages"></ul>
     </div>
     <div id="form" class="container">
-        <input id="username" placeholder="kullanıcı adı" /><input id="input" autocomplete="off" /><button id="enter">→</button>
+        <input id="input" autocomplete="off" /><button id="enter">→</button>
     </div
     >
     <script src="/socket.io/socket.io.js"></script>
@@ -83,19 +82,19 @@
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var button = document.getElementById('enter');
-        var username = document.getElementById('username');
+        var username = prompt('Kullanıcı adı:');
 
         const enter = (e) => {
             console.log(e);
             if (e.key == 'Enter' || e.type == 'click') {
                 if (input.value) {
-                    if (username.value.trim() != '') {            
+                    if (username != null && username.trim() != '') {            
                         const date = new Date();
                         let time = date.getHours() + '.' + date.getMinutes();
-                        socket.emit('chat message', username.value, input.value, time);
+                        socket.emit('chat message', username, input.value, time);
                         input.value = '';   
                     }else {
-                        alert('Kullanıcı adı girin.');
+                        alert('Kullanıcı adı girmek için sayfayı yenileyin.');
                     }
                 }
             }
