@@ -146,7 +146,7 @@
                                 messages.appendChild(item);
                                 window.scrollTo(0, document.body.scrollHeight);
                             }else if (input.value == '/ebe') {
-                                let ebe = new sound('http://arba.byethost32.com/audio/ebeninami.mp3');
+                                let ebe = new sound('https://raw.githubusercontent.com/doctorosman/arbaold/master/audio/ebeninami.mp3');
                                 ebe.play();
                             }else {
                                 socket.emit('chat message', username.trim(), input.value, time);
