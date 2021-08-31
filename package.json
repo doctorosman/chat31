@@ -1,0 +1,9 @@
+{
+    "name": "chat31",
+    "version": "0.0.1",
+    "description": "Sohbet mekanı 31.",
+    "dependencies": {
+        "express": "^4.17.1",
+        "socket.io": "^4.2.0"
+    }
+}

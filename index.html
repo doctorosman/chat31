@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat31</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        .title {
+            background: #ddd;
+            z-index: 1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: 700;
+            font-size: 2em;
+            height: 3rem;
+            box-sizing: border-box;
+        }
+
+        .chat {
+            background: #fff;
+            padding: 0 0.5em;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .chat ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat li {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .chat li i {
+            float: right;
+            font-size: 1rem;
+        }
+
+        #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+        #input, #username { padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+        #username { flex: 0; }
+        #form > button { background: darkblue; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="title">chat31</div>
+    <div class="container chat">
+        <ul id="messages"></ul>
+    </div>
+    <div id="form" class="container">
+        <input id="username" placeholder="kullanıcı adı" /><input id="input" autocomplete="off" /><button id="enter">→</button>
+    </div
+    >
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        var messages = document.getElementById('messages');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        var button = document.getElementById('enter');
+        var username = document.getElementById('username');
+
+        const enter = (e) => {
+            console.log(e);
+            if (e.key == 'Enter' || e.type == 'click') {
+                if (input.value) {
+                    if (username.value.trim() != '') {
+                        socket.emit('chat message', input.value);
+                        input.value = '';   
+                    }else {
+                        alert('Kullanıcı adı girin.');
+                    }
+                }
+            }
+        };
+
+        input.addEventListener('keyup', enter);
+        button.addEventListener('click', enter);
+
+        socket.on('chat message', function(msg) {
+            const date = new Date();
+            let time = date.getHours() + '.' + date.getMinutes();
+            var item = document.createElement('li');
+            item.innerHTML = '<b>' + username.value + '</b>:&nbsp;' + msg.trim() + '<i>' + time + '</i>';
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+</body>
+</html>
