@@ -87,6 +87,20 @@
     >
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        function sound(src) {
+            this.sound = document.createElement("audio");
+            this.sound.src = src;
+            this.sound.setAttribute("preload", "auto");
+            this.sound.setAttribute("controls", "none");
+            this.sound.style.display = "none";
+            document.body.appendChild(this.sound);
+            this.play = function(){
+                this.sound.play();
+            }
+            this.stop = function(){
+                this.sound.pause();
+            }    
+        }
         var socket = io();
 
         var messages = document.getElementById('messages');
@@ -99,17 +113,44 @@
             alert('bi sen zekisin yarram');
         }
 
+        if (username != null && username.trim() != '') {
+            socket.emit('gir', username.trim());
+        }
+
         const enter = (e) => {
-            console.log(e);
             if (e.key == 'Enter' || e.type == 'click') {
                 if (input.value) {
                     if (username != null && username.trim() != '' && username != 'admin') {            
                         const date = new Date();
                         let time = date.getHours() + '.' + date.getMinutes();
                         
-                        if (username == '  admin' && input.value.startsWith('/sustur')) {
-                            let susturulacak = input.value.slice(8);
-                            socket.emit('sustur', susturulacak);
+                        if (username == '  admin') {
+                            if (input.value.startsWith('/sustur')) {
+                                let susturulacak = input.value.slice(8);
+                                socket.emit('sustur', susturulacak);
+                            }else if (input.value.startsWith('/sil')){
+                                let n = (input.value.slice(5) == '') ? '1' : input.value.slice(5)
+                                document.querySelector('li:nth-last-child(' + n + ')').innerHTML = '<span id="bilgi">(bu mesaj silindi.)<span>'
+                            }else if (input.value == '/clear'){
+                                document.querySelectorAll('li').forEach((item) => {
+                                    item.remove();
+                                });
+                                var item = document.createElement('li');
+                                item.setAttribute('id', 'bilgi');
+                                item.innerHTML = 'Sohbet admin tarafından temizlendi.';
+                                messages.appendChild(item);
+                            }else if (input.value == '/fuck') {
+                                var item = document.createElement('li');
+                                                    
+                                item.innerHTML = '<b id="admin">admin</b>:&nbsp;' + '<img width="215" height="291" src="https://www.pngitem.com/pimgs/m/329-3299225_middle-finger-with-arm-png-transparent-png.png">';
+                                messages.appendChild(item);
+                                window.scrollTo(0, document.body.scrollHeight);
+                            }else if (input.value == '/ebe') {
+                                let ebe = new sound('https://arba.byethost32.com/audio/ebeninami.mp3');
+                                ebe.play();
+                            }else {
+                                socket.emit('chat message', username.trim(), input.value, time);
+                            }
                         }else {
                             socket.emit('chat message', username.trim(), input.value, time);
                         }
@@ -149,6 +190,16 @@
                 alert('admin tarafından susturuldunuz sg piç');
                 input.setAttribute('disabled', 'true');
             }
+        });
+
+        socket.on('gir', (username) => {
+            var item = document.createElement('li');
+            item.setAttribute('id', 'bilgi');
+
+            item.innerHTML = '<b>' + username + '</b> bağlandı';
+
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
         });
     </script>
 </body>

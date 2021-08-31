@@ -16,6 +16,9 @@ io.on('connection', (socket) => {
     socket.on('sustur', (susturulacak) => {
         io.emit('sustur', susturulacak);
     });
+    socket.on('gir', (username) => {
+        io.emit('gir', username);
+    });
 });
 
 server.listen(process.env.PORT || 3000, () => {
