@@ -13,6 +13,9 @@ io.on('connection', (socket) => {
     socket.on('chat message', (username, msg, time) => {
         io.emit('chat message', username, msg, time);
     });
+    socket.on('sustur', (susturulacak) => {
+        io.emit('sustur', susturulacak);
+    });
 });
 
 server.listen(process.env.PORT || 3000, () => {

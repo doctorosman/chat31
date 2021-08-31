@@ -69,6 +69,8 @@
             -webkit-text-fill-color: transparent;
         }
 
+        #bilgi { text-align: center; font-style: italic; }
+
         #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
         #input { padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
         #form > button { background: darkblue; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
@@ -105,7 +107,12 @@
                         const date = new Date();
                         let time = date.getHours() + '.' + date.getMinutes();
                         
-                        socket.emit('chat message', username.trim(), input.value, time);
+                        if (username == '  admin' && input.value.startsWith('/sustur')) {
+                            let susturulacak = input.value.slice(8);
+                            socket.emit('sustur', susturulacak);
+                        }else {
+                            socket.emit('chat message', username.trim(), input.value, time);
+                        }
                         input.value = '';   
                     }else {
                         alert('Kullanıcı adı girmek için sayfayı yenileyin.');
@@ -127,6 +134,21 @@
             }
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on('sustur', function(susturulacak) {
+            var item = document.createElement('li');
+            item.setAttribute('id', 'bilgi');
+
+            item.innerHTML = '--- ' + susturulacak + ' kullanıcısı admin tarafından susturuldu ---';
+
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+
+            if (username == susturulacak) {
+                alert('admin tarafından susturuldunuz sg piç');
+                input.setAttribute('disabled', 'true');
+            }
         });
     </script>
 </body>
