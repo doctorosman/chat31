@@ -81,6 +81,12 @@ io.on('connection', (socket) => {
             });
         }
     });
+    socket.on('typing', (username) => {
+        socket.broadcast.emit('typing', username);
+    });
+    socket.on('not typing', (username) => {
+        socket.broadcast.emit('not typing', username);
+    });
 });
 
 server.listen(process.env.PORT || 3000, () => {

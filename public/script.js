@@ -83,7 +83,12 @@ const enter = (e) => {
             }else {
                 alert('Kullanıcı adı girmek için sayfayı yenileyin.');
             }
+            socket.emit('not typing', username.trim());
         }
+    }else if (e.key == 'Backspace') {
+        socket.emit('not typing', username.trim());
+    }else {
+        socket.emit('typing', username.trim());
     }
 };
 
@@ -219,5 +224,29 @@ socket.on('çık', data => {
         item.innerHTML = '<b>' + data.username + '</b> çıkış yaptı';
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
+    }
+});
+
+socket.on('typing', (username) => {
+    let e = document.querySelector('[data-username="' + username + '"]');
+    
+    if (e == null) {
+        let item = document.createElement('li');
+        item.setAttribute('id', 'bilgi');
+        item.setAttribute('class', 'typing');
+        item.setAttribute('data-username', username);
+    
+        item.innerHTML = username + ' yazıyor';
+    
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+});
+
+socket.on('not typing', (username) => {
+    let e = document.querySelector('[data-username="' + username + '"]');
+
+    if (e != null) {
+        e.remove();
     }
 });
