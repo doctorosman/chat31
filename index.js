@@ -1,23 +1,52 @@
 const express = require('express');
 const app = express();
 const http = require('http');
+const path = require('path');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
+const { isPrimitive } = require('util');
 const io = new Server(server);
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
+app.use(express.static(path.join(__dirname, 'public')));
+
+let users = [];
+let guests = 0;
 
 io.on('connection', (socket) => {
-    socket.on('chat message', (username, msg, time) => {
-        io.emit('chat message', username, msg, time);
+    let userIn = false;
+    let guestIn = false;
+
+    socket.on('mesaj', data => {
+        io.emit('mesaj', data);
     });
     socket.on('sustur', (susturulacak) => {
         io.emit('sustur', susturulacak);
     });
-    socket.on('gir', (username) => {
-        io.emit('gir', username);
+    socket.on('gir', data => {
+        if (userIn)
+            return;
+        
+        if (data.misafir) {
+            ++guests;
+            guestIn = true;
+
+            io.emit('gir', {
+                misafir: true,
+                guests: guests,
+                users: users
+            });
+        }else {
+            socket.username = data.username;
+            users.push(data.username);
+            userIn = true;
+
+            io.emit('gir', {
+                username: data.username,
+                users: users,
+                misafir: false,
+                guests: guests
+            });
+        }
     });
     socket.on('ebe', () => {
         io.emit('ebe');
@@ -30,6 +59,27 @@ io.on('connection', (socket) => {
     });
     socket.on('fuck', () => {
         io.emit('fuck');
+    });
+    socket.on('disconnect', () => {
+        if (userIn) {
+            const index = users.indexOf(socket.username);
+            if (index > -1)
+                users.splice(index, 1);
+
+            io.emit('çık', {
+                username: socket.username,
+                users: users,
+                misafir: false,
+                guests: guests
+            });
+        }else if (guestIn) {
+            --guests;
+            io.emit('çık', {
+                misafir: true,
+                guests: guests,
+                users: users
+            });
+        }
     });
 });
 
