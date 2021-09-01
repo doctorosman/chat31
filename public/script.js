@@ -61,7 +61,7 @@ const enter = (e) => {
                             '<b>/clear</b>' + ' - Tüm sohbeti temizler.<br>' +
                             '<b>/fuck</b>' + ' - Orta parmak yollar.<br>' +
                             '<b>/ebe</b>' + ' - :)';
-                        item.innerHTML = 'YARDIM<br>' + help + '<i>' + time + '</i>';
+                        item.innerHTML = '<h4>ADMİN KOMUTLARI</h4><br>' + help + '<i>' + time + '</i>';
 
                         messages.appendChild(item);
                         window.scrollTo(0, document.body.scrollHeight);
@@ -168,7 +168,10 @@ socket.on('gir', data => {
     if (!data.misafir){
         let item = document.createElement('li');
         item.setAttribute('id', 'bilgi');
-        item.innerHTML = '<b>' + data.username + '</b> bağlandı';
+        if (data.username == 'admin')
+            item.innerHTML = '<b>admin hazretleri teşrif etti</b>';
+        else
+            item.innerHTML = '<b>' + data.username + '</b> bağlandı';
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
     }
@@ -236,7 +239,10 @@ socket.on('typing', (username) => {
         item.setAttribute('class', 'typing');
         item.setAttribute('data-username', username);
     
-        item.innerHTML = username + ' yazıyor';
+        if (username == 'admin')
+            item.innerHTML = '<b>admin hazretleri yazıyor</b>';
+        else
+            item.innerHTML = username + ' yazıyor';
     
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
