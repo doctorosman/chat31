@@ -41,7 +41,23 @@ const enter = (e) => {
                 const date = new Date();
                 let time = formatTime(date.getHours()) + '.' + formatTime(date.getMinutes());
                 
-                if (username == '  admin') {
+                if (input.value == '/31') {
+                    socket.emit('bilgi', '<b>' + username + '</b> 31 çekmeye başladı.');
+                }else if (input.value.startsWith('/fısılda')){
+                    const array = input.value.split(' ');
+                    array.shift();
+                    const fisildanacak = array[0];
+                    array.shift();
+
+                    socket.emit('fısılda', {
+                        username: username,
+                        fisildanacak: fisildanacak,
+                        msg: array.join(' '),
+                        time: time
+                    });
+                }else if (input.value == '/ebe') {
+                    socket.emit('ebe');
+                }else if (username == '  admin') {
                     if (input.value.startsWith('/sustur')) {
                         let susturulacak = input.value.slice(8);
                         socket.emit('sustur', susturulacak);
@@ -52,17 +68,47 @@ const enter = (e) => {
                         socket.emit('clear');
                     }else if (input.value == '/fuck') {
                         socket.emit('fuck');
-                    }else if (input.value == '/ebe') {
-                        socket.emit('ebe');
                     }else if (input.value == '/help') {
                         let item = document.createElement('li');
-                        let help = '<b>/sustur [oyuncu]</b> - Oyuncuyu susturur.<br>' +
+                        let help = '<b>/sustur [kullanıcı]</b> - Kullanıcıyı susturur.<br>' +
                             '<b>/sil [sondan önceki x. mesaj]</b>' + ' - Sondan önceki x. mesajı siler.<br>' +
+                            '<b>/a [href] {yazı}</b>' + ' - Link gönderir.<br>' +
                             '<b>/clear</b>' + ' - Tüm sohbeti temizler.<br>' +
                             '<b>/fuck</b>' + ' - Orta parmak yollar.<br>' +
                             '<b>/ebe</b>' + ' - :)';
-                        item.innerHTML = '<h4>ADMİN KOMUTLARI</h4><br>' + help + '<i>' + time + '</i>';
+                        item.innerHTML = '<h4>ADMİN KOMUTLARI</h4>' + help + '<i>' + time + '</i>';
 
+                        messages.appendChild(item);
+                        window.scrollTo(0, document.body.scrollHeight);
+                    }else if (input.value.startsWith('/a')) {
+                        const array = input.value.split(' ');
+                        array.shift();
+                        const href = array[0];
+                        if (array.length == 1)
+                            array.push(array[0]);
+                        array.shift();
+                        socket.emit('mesaj', {
+                            username: cleanText(username.trim()),
+                            msg: '<a href="' + href + '">' + array.join(' ') + '</a>',
+                            time: time
+                        });
+                    }else {
+                        socket.emit('mesaj', {
+                            username: cleanText(username.trim()),
+                            msg: cleanText(input.value.trim()),
+                            time: time
+                        });
+                    }
+                }else {
+                    if (input.value.trim().startsWith('/help')) {
+                        const message = '<b>/fısılda [kullanıcı] [mesaj]</b> - İstediğiniz bir kullanıcıya sadece onun görebileceği bir mesaj gönderir.<br>' +
+                            '<b>/renkli [renk] [mesaj]</b> - Renkli mesaj gönderir. (VIP)<br>' +
+                            '<b>/isim [renk]</b> - İsim renginizi değiştirir. (VIP)<br>' +
+                            '<b>/31</b> - Yapmakta olduğunuz şeyi herkese bildirir.' +
+                            '<b>/ebe</b> - :)';
+                        let item = document.createElement('li');
+                        item.innerHTML = '<h4>KOMUTLAR</h4>' + message + '<i>' + time + '</i>';
+    
                         messages.appendChild(item);
                         window.scrollTo(0, document.body.scrollHeight);
                     }else {
@@ -72,12 +118,6 @@ const enter = (e) => {
                             time: time
                         });
                     }
-                }else {
-                    socket.emit('mesaj', {
-                        username: cleanText(username.trim()),
-                        msg: cleanText(input.value.trim()),
-                        time: time
-                    });
                 }
                 input.value = '';   
             }else {
@@ -88,7 +128,8 @@ const enter = (e) => {
     }else if (e.key == 'Backspace') {
         socket.emit('not typing', username.trim());
     }else {
-        socket.emit('typing', username.trim());
+        if (username != null)
+            socket.emit('typing', username.trim());
     }
 };
 
@@ -144,13 +185,24 @@ socket.on('sustur', susturulacak => {
     }
 });
 
+socket.on('bilgi', msg => {
+    console.log('a');
+    let item = document.createElement('li');
+    item.setAttribute('id', 'bilgi');
+
+    item.innerHTML = '--- ' + msg + ' ---';
+
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+});
+
 socket.on('gir', data => {
     let u = false;
 
     if (data.users.length != 0) {
         online.innerHTML = '<span id="list">' + data.users.length + ' online' + '</span>';
         document.getElementById('list').addEventListener('click', () => {
-            alert('Online kullanıcılar (' + data.users.length + '): ' + data.users);
+            alert('Online kullanıcılar (' + data.users.length + '): ' + data.users.join(', '));
         });
         u = true;
     }
@@ -206,7 +258,7 @@ socket.on('çık', data => {
     if (data.users.length != 0) {
         online.innerHTML = '<span id="list">' + data.users.length + ' online' + '</span>';
         document.getElementById('list').addEventListener('click', () => {
-            alert('Online kullanıcılar (' + data.users.length + '): ' + data.users);
+            alert('Online kullanıcılar (' + data.users.length + '): ' + data.users.join(', '));
         });
         u = true;
     }
@@ -254,5 +306,23 @@ socket.on('not typing', (username) => {
 
     if (e != null) {
         e.remove();
+    }
+});
+
+socket.on('fısılda', data => {
+    if (data.username == username) {
+        let item = document.createElement('li');
+        item.setAttribute('class', 'fisilda');
+        
+        item.innerHTML = '<b>' + data.fisildanacak + '</b> kullanıcısına fısıldadınız:<br>&emsp;' + data.msg + '<i>' + data.time + '</i>';
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    }else if (data.fisildanacak == username) {
+        let item = document.createElement('li');
+        item.setAttribute('class', 'fisilda');
+        
+        item.innerHTML = '<b>' + data.username + '</b> kullanıcısı size fısıldadı:<br>&emsp;' + data.msg + '<i>' + data.time + '</i>';
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
     }
 });

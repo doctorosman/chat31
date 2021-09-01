@@ -87,6 +87,12 @@ io.on('connection', (socket) => {
     socket.on('not typing', (username) => {
         socket.broadcast.emit('not typing', username);
     });
+    socket.on('fısılda', data => {
+        io.emit('fısılda', data);
+    });
+    socket.on('bilgi', msg => {
+        io.emit('bilgi', msg);
+    });
 });
 
 server.listen(process.env.PORT || 3000, () => {
