@@ -104,7 +104,7 @@ const enter = (e) => {
                         const message = '<b>/fısılda [kullanıcı] [mesaj]</b> - İstediğiniz bir kullanıcıya sadece onun görebileceği bir mesaj gönderir.<br>' +
                             '<b>/renkli [renk] [mesaj]</b> - Renkli mesaj gönderir. (VIP)<br>' +
                             '<b>/isim [renk]</b> - İsim renginizi değiştirir. (VIP)<br>' +
-                            '<b>/31</b> - Yapmakta olduğunuz şeyi herkese bildirir.' +
+                            '<b>/31</b> - Yapmakta olduğunuz şeyi herkese bildirir.<br>' +
                             '<b>/ebe</b> - :)';
                         let item = document.createElement('li');
                         item.innerHTML = '<h4>KOMUTLAR</h4>' + message + '<i>' + time + '</i>';
