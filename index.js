@@ -93,6 +93,9 @@ io.on('connection', (socket) => {
     socket.on('bilgi', msg => {
         io.emit('bilgi', msg);
     });
+    socket.on('duyuru', msg => {
+        io.emit('duyuru', msg);
+    });
 });
 
 server.listen(process.env.PORT || 3000, () => {

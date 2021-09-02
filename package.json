@@ -1,6 +1,6 @@
 {
     "name": "chat31",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Sohbet mekanı 31.",
     "main": "index.js",
     "engines": {

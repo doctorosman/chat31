@@ -8,6 +8,32 @@ document.body.appendChild(this.sound);
 
 const socket = io();
 
+// Banlılar
+const banlilar = [
+    'artunç',
+    'artunc'
+];
+
+// Yardımcı Fonksiyonlar
+const formatTime = (time) => {
+    if (time.toString().length == 1)
+        return '0' + time;
+    else
+        return time;
+};
+
+const cleanText = (text) => {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    
+    return text.replace(/[&<>"']/g, m => { return map[m] });
+};
+
 // Elementler
 let messages = document.getElementById('messages');
 let form = document.getElementById('form');
@@ -19,6 +45,11 @@ let online = document.getElementById('online');
 // Kullanıcı Girişi Kontrolü
 if (username == 'admin') {
     alert('bi sen zekisin yarram');
+    socket.emit('gir', {
+        misafir: true
+    });
+}else if (banlilar.includes(username)) {
+    alert('BANLANDINIZ.\nBanınızın kalkması için admin\'e yalvarabilirsiniz:\n /yalvar');
     socket.emit('gir', {
         misafir: true
     });
@@ -37,7 +68,7 @@ if (username == 'admin') {
 const enter = (e) => {
     if (e.key == 'Enter' || e.type == 'click') {
         if (input.value) {
-            if (username != null && username.trim() != '' && username != 'admin') {            
+            if (username != null && username.trim() != '' && username != 'admin' && !banlilar.includes(username)) {            
                 const date = new Date();
                 let time = formatTime(date.getHours()) + '.' + formatTime(date.getMinutes());
                 
@@ -59,7 +90,7 @@ const enter = (e) => {
                     socket.emit('ebe');
                 }else if (username == '  admin') {
                     if (input.value.startsWith('/sustur')) {
-                        let susturulacak = input.value.slice(8);
+                        const susturulacak = input.value.slice(8);
                         socket.emit('sustur', susturulacak);
                     }else if (input.value.startsWith('/sil')){
                         let n = (input.value.slice(5) == '') ? '1' : input.value.slice(5)
@@ -68,12 +99,18 @@ const enter = (e) => {
                         socket.emit('clear');
                     }else if (input.value == '/fuck') {
                         socket.emit('fuck');
+                    }else if (input.value.startsWith('/bilgi')) {
+                        socket.emit('bilgi', input.value.slice(7));
+                    }else if (input.value.startsWith('/duyuru')) {
+                        socket.emit('duyuru', input.value.slice(8));
                     }else if (input.value == '/help') {
                         let item = document.createElement('li');
                         let help = '<b>/sustur [kullanıcı]</b> - Kullanıcıyı susturur.<br>' +
                             '<b>/sil [sondan önceki x. mesaj]</b>' + ' - Sondan önceki x. mesajı siler.<br>' +
                             '<b>/a [href] {yazı}</b>' + ' - Link gönderir.<br>' +
                             '<b>/clear</b>' + ' - Tüm sohbeti temizler.<br>' +
+                            '<b>/bilgi</b>' + ' - Bilgi mesajı gönderir.<br>' +
+                            '<b>/duyuru</b>' + ' - Herkese duyuru yapar.<br>' +
                             '<b>/fuck</b>' + ' - Orta parmak yollar.<br>' +
                             '<b>/ebe</b>' + ' - :)';
                         item.innerHTML = '<h4>ADMİN KOMUTLARI</h4>' + help + '<i>' + time + '</i>';
@@ -120,6 +157,12 @@ const enter = (e) => {
                     }
                 }
                 input.value = '';   
+            }else if (banlilar.includes(username)) {
+                if (input.value == '/yalvar') {
+                    socket.emit('bilgi', '<b>' + username + '</b> banının kalkması için admine yalvarıyor.');       
+                }else {
+                    alert('Banlı olduğunuz için konuşamazsınız. Sadece yalvarabilirsiniz:\n/yalvar');
+                }
             }else {
                 alert('Kullanıcı adı girmek için sayfayı yenileyin.');
             }
@@ -131,26 +174,6 @@ const enter = (e) => {
         if (username != null)
             socket.emit('typing', username.trim());
     }
-};
-
-// Yardımcı Fonksiyonlar
-const formatTime = (time) => {
-    if (time.toString().length == 1)
-        return '0' + time;
-    else
-        return time;
-};
-
-const cleanText = (text) => {
-    var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    
-    return text.replace(/[&<>"']/g, m => { return map[m] });
 };
 
 // Listenerlar
@@ -245,7 +268,7 @@ socket.on('clear', () => {
 
 socket.on('fuck', () => {
     let item = document.createElement('li');                     
-    item.innerHTML = '<b id="admin">admin</b>:&nbsp;' + '<img width="215" height="291" src="https://www.pngitem.com/pimgs/m/329-3299225_middle-finger-with-arm-png-transparent-png.png">';
+    item.innerHTML = '<b id="admin">admin</b>:&nbsp;' + '<img width="215" height="291" src="fuck.png">';
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
 });
@@ -325,4 +348,8 @@ socket.on('fısılda', data => {
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
     }
+});
+
+socket.on('duyuru', msg => {
+    alert('DUYURU: ' + msg);
 });
